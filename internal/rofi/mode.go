@@ -33,19 +33,15 @@ func HandleScriptMode(cfg *config.Config, selectedArg string) error {
 
 	switch retv {
 	case "0", "":
-		// Initial Load: Print all entries to stdout for Rofi
+		// Initial Load: Print plain entry lines to stdout for Rofi
 		entries, err := store.ListEntries()
 		if err != nil {
 			fmt.Printf("Error: %v\n", err)
 			return err
 		}
 
-		// Rofi Options
-		fmt.Printf("\x00prompt\x1fpasswords\n")
-
 		for _, entry := range entries {
-			// Print entry line; pass entry name as ROFI_INFO metadata
-			fmt.Printf("%s\x00info\x1f%s\n", entry, entry)
+			fmt.Println(entry)
 		}
 		return nil
 
@@ -70,7 +66,6 @@ func HandleScriptMode(cfg *config.Config, selectedArg string) error {
 		action := determineAction(retv, cfg)
 
 		if action == ActionSubmenu || cfg.EnableSubmenu {
-			// Output Submenu options for the selected entry
 			printSubmenu(selectedEntry)
 			return nil
 		}
@@ -102,9 +97,6 @@ func determineAction(retv string, cfg *config.Config) Action {
 }
 
 func printSubmenu(entryName string) {
-	fmt.Printf("\x00prompt\x1f%s\n", entryName)
-	fmt.Printf("\x00no-custom\x1ftrue\n") // Disallow free text entry
-
 	fmt.Printf("[1] Copy Password\x00info\x1fSUBMENU::%s::copy-pass\n", entryName)
 	fmt.Printf("[2] Copy Username\x00info\x1fSUBMENU::%s::copy-user\n", entryName)
 	fmt.Printf("[3] Copy TOTP 2FA\x00info\x1fSUBMENU::%s::copy-otp\n", entryName)

@@ -20,49 +20,66 @@ type Store struct {
 // NewStore creates a new Store instance given a store directory path.
 func NewStore(dir string) *Store {
 	expanded := config.ExpandPath(dir)
+	resolved, err := filepath.EvalSymlinks(expanded)
+	if err == nil {
+		expanded = resolved
+	}
 	return &Store{Dir: expanded}
 }
 
 // ListEntries returns a sorted slice of relative entry paths (without .gpg extension).
 func (s *Store) ListEntries() ([]string, error) {
-	if _, err := os.Stat(s.Dir); os.IsNotExist(err) {
-		return nil, fmt.Errorf("password store directory does not exist: %s", s.Dir)
+	realDir, err := filepath.EvalSymlinks(s.Dir)
+	if err != nil {
+		realDir = s.Dir
+	}
+
+	if _, err := os.Stat(realDir); os.IsNotExist(err) {
+		return nil, fmt.Errorf("password store directory does not exist: %s", realDir)
 	}
 
 	var entries []string
 
-	err := filepath.WalkDir(s.Dir, func(path string, d os.DirEntry, err error) error {
+	var walkFunc func(currentDir string) error
+	walkFunc = func(currentDir string) error {
+		items, err := os.ReadDir(currentDir)
 		if err != nil {
 			return err
 		}
 
-		// Skip hidden directories like .git, .gpg-id, .extensions
-		if d.IsDir() && strings.HasPrefix(d.Name(), ".") && path != s.Dir {
-			return filepath.SkipDir
+		for _, item := range items {
+			name := item.Name()
+
+			// Skip hidden files or directories (.git, .gpg-id, .extensions)
+			if strings.HasPrefix(name, ".") {
+				continue
+			}
+
+			itemPath := filepath.Join(currentDir, name)
+
+			// Resolve symlinks
+			info, err := os.Stat(itemPath)
+			if err != nil {
+				continue
+			}
+
+			if info.IsDir() {
+				if err := walkFunc(itemPath); err != nil {
+					return err
+				}
+			} else if strings.HasSuffix(name, ".gpg") {
+				rel, err := filepath.Rel(realDir, itemPath)
+				if err != nil {
+					continue
+				}
+				entryName := strings.TrimSuffix(rel, ".gpg")
+				entries = append(entries, entryName)
+			}
 		}
-
-		if d.IsDir() {
-			return nil
-		}
-
-		// Ignore non-.gpg files or hidden files
-		if strings.HasPrefix(d.Name(), ".") || !strings.HasSuffix(d.Name(), ".gpg") {
-			return nil
-		}
-
-		rel, err := filepath.Rel(s.Dir, path)
-		if err != nil {
-			return err
-		}
-
-		// Trim .gpg suffix
-		entryName := strings.TrimSuffix(rel, ".gpg")
-		entries = append(entries, entryName)
-
 		return nil
-	})
+	}
 
-	if err != nil {
+	if err := walkFunc(realDir); err != nil {
 		return nil, fmt.Errorf("failed to walk password store directory: %w", err)
 	}
 
@@ -72,9 +89,13 @@ func (s *Store) ListEntries() ([]string, error) {
 
 // GetEntry decrypts and parses a specific pass entry.
 func (s *Store) GetEntry(name string) (*Entry, error) {
-	// Sanitize entry name
+	realDir, err := filepath.EvalSymlinks(s.Dir)
+	if err != nil {
+		realDir = s.Dir
+	}
+
 	cleanName := strings.TrimSuffix(name, ".gpg")
-	filePath := filepath.Join(s.Dir, cleanName+".gpg")
+	filePath := filepath.Join(realDir, cleanName+".gpg")
 
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		return nil, fmt.Errorf("entry does not exist: %s", cleanName)

@@ -3,6 +3,7 @@ package rofi
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/quasi-deus/rofi-pass-go/internal/autotype"
@@ -24,10 +25,22 @@ const (
 	ActionSubmenu   Action = "submenu"
 )
 
+func logDebug(format string, args ...interface{}) {
+	logFile := filepath.Join(os.TempDir(), "rofi-pass-debug.log")
+	f, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err == nil {
+		fmt.Fprintf(f, format+"\n", args...)
+		f.Close()
+	}
+}
+
 // HandleScriptMode orchestrates Rofi script mode protocol.
 func HandleScriptMode(cfg *config.Config, selectedArg string) error {
 	retv := os.Getenv("ROFI_RETV")
 	info := os.Getenv("ROFI_INFO")
+
+	logDebug("HandleScriptMode: RETV=%q, INFO=%q, SelectedArg=%q, StoreDir=%q, ConfigFile=%q",
+		retv, info, selectedArg, cfg.StoreDir, cfg.ConfigFile)
 
 	store := pass.NewStore(cfg.StoreDir)
 
@@ -36,9 +49,12 @@ func HandleScriptMode(cfg *config.Config, selectedArg string) error {
 		// Initial Load: Print plain entry lines to stdout for Rofi
 		entries, err := store.ListEntries()
 		if err != nil {
+			logDebug("Error listing entries from %s: %v", store.Dir, err)
 			fmt.Printf("Error: %v\n", err)
 			return err
 		}
+
+		logDebug("Successfully listed %d entries from %s", len(entries), store.Dir)
 
 		for _, entry := range entries {
 			fmt.Println(entry)
@@ -53,6 +69,8 @@ func HandleScriptMode(cfg *config.Config, selectedArg string) error {
 		} else if selectedArg != "" {
 			selectedEntry = selectedArg
 		}
+
+		logDebug("Selected entry: %q", selectedEntry)
 
 		if selectedEntry == "" {
 			return nil
@@ -120,6 +138,7 @@ func handleSubmenuSelection(selectedInfo string, cfg *config.Config, store *pass
 func ExecuteAction(action Action, entryName string, cfg *config.Config, store *pass.Store) error {
 	entry, err := store.GetEntry(entryName)
 	if err != nil {
+		logDebug("Failed to decrypt entry %s: %v", entryName, err)
 		fmt.Printf("Failed to decrypt entry %s: %v\n", entryName, err)
 		return err
 	}

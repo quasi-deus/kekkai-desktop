@@ -1,0 +1,18 @@
+# Binaries
+bin/
+rofi-pass-go
+
+# Test artifacts
+*.out
+*.cover
+coverage.html
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Local configuration / temporary files
+scratch/
+config.yaml
+*Taskfile*

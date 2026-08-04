@@ -32,7 +32,7 @@ func HandleScriptMode(cfg *config.Config) error {
 	store := pass.NewStore(cfg.StoreDir)
 
 	switch retv {
-	case "0":
+	case "0", "":
 		// Initial Load: Print all entries to stdout for Rofi
 		entries, err := store.ListEntries()
 		if err != nil {

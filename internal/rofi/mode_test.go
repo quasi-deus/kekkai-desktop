@@ -27,7 +27,7 @@ func TestHandleScriptModeInitialLoad(t *testing.T) {
 	os.Setenv("ROFI_RETV", "0")
 	defer os.Unsetenv("ROFI_RETV")
 
-	err := rofi.HandleScriptMode(cfg)
+	err := rofi.HandleScriptMode(cfg, "")
 	if err != nil {
 		t.Fatalf("HandleScriptMode failed: %v", err)
 	}

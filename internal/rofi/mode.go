@@ -25,7 +25,7 @@ const (
 )
 
 // HandleScriptMode orchestrates Rofi script mode protocol.
-func HandleScriptMode(cfg *config.Config) error {
+func HandleScriptMode(cfg *config.Config, selectedArg string) error {
 	retv := os.Getenv("ROFI_RETV")
 	info := os.Getenv("ROFI_INFO")
 
@@ -54,8 +54,8 @@ func HandleScriptMode(cfg *config.Config) error {
 		selectedEntry := ""
 		if info != "" {
 			selectedEntry = info
-		} else if len(os.Args) > 1 {
-			selectedEntry = os.Args[1]
+		} else if selectedArg != "" {
+			selectedEntry = selectedArg
 		}
 
 		if selectedEntry == "" {

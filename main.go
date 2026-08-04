@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/alecthomas/kong"
 	"github.com/quasi-deus/rofi-pass-go/internal/autotype"
@@ -52,18 +53,65 @@ type InitConfigCmd struct {
 	Path string `help:"Path where to generate config.yaml" default:"~/.config/rofi-pass-go/config.yaml"`
 }
 
+var extraRofiSelection string
+
+func preprocessArgs(args []string) []string {
+	if len(args) <= 1 {
+		return args
+	}
+
+	firstArg := args[1]
+	if strings.HasPrefix(firstArg, "-") {
+		return args
+	}
+
+	knownCommands := map[string]bool{
+		"rofi":        true,
+		"list":        true,
+		"show":        true,
+		"copy":        true,
+		"type":        true,
+		"init-config": true,
+		"help":        true,
+	}
+
+	if !knownCommands[firstArg] {
+		// Store selection and strip it from args so Kong parses default RofiCmd cleanly
+		extraRofiSelection = firstArg
+		if os.Getenv("ROFI_INFO") == "" {
+			os.Setenv("ROFI_INFO", firstArg)
+		}
+		newArgs := append([]string{args[0]}, args[2:]...)
+		return newArgs
+	}
+
+	return args
+}
+
 func main() {
 	var cli CLI
-	ctx := kong.Parse(&cli,
+
+	processedArgs := preprocessArgs(os.Args)
+
+	parser, err := kong.New(&cli,
 		kong.Name("rofi-pass-go"),
 		kong.Description("Fast, Go-native Rofi interface for pass (password-store) with Wayland/X11 and YAML support."),
 		kong.UsageOnError(),
 	)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error creating CLI parser: %v\n", err)
+		os.Exit(1)
+	}
+
+	ctx, err := parser.Parse(processedArgs[1:])
+	if err != nil {
+		parser.FatalIfErrorf(err)
+	}
 
 	// Build app Config by loading YAML file if present and merging CLI values
 	appConfig := buildAppConfig(&cli)
 
-	err := ctx.Run(appConfig)
+	err = ctx.Run(appConfig)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
@@ -114,7 +162,7 @@ func buildAppConfig(cli *CLI) *config.Config {
 }
 
 func (r *RofiCmd) Run(cfg *config.Config) error {
-	return rofi.HandleScriptMode(cfg)
+	return rofi.HandleScriptMode(cfg, extraRofiSelection)
 }
 
 func (l *ListCmd) Run(cfg *config.Config) error {

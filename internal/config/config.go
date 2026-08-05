@@ -11,41 +11,16 @@ import (
 
 // Config represents the application configuration schema.
 type Config struct {
-	StoreDir        string          `yaml:"store_dir" help:"Path to password store directory" default:"~/.password-store" env:"PASSWORD_STORE_DIR"`
-	AutoType        bool            `yaml:"auto_type" help:"Auto-type password instead of copying to clipboard" short:"a"`
-	CopyPass        bool            `yaml:"copy_pass" help:"Copy password to clipboard" short:"c"`
-	CopyUser        bool            `yaml:"copy_user" help:"Copy username to clipboard" short:"u"`
-	CopyOTP         bool            `yaml:"copy_otp" help:"Copy TOTP 2FA code to clipboard" short:"o"`
-	ViewNotes       bool            `yaml:"view_notes" help:"View entry notes" short:"n"`
-	Delay           int             `yaml:"delay_ms" help:"Delay before auto-typing in milliseconds" default:"200"`
-	ClearAfter      int             `yaml:"clear_after_sec" help:"Clipboard auto-clear delay in seconds" default:"45"`
-	Backend         string          `yaml:"autotype_backend" enum:"auto,xdotool,wtype,ydotool" default:"auto" help:"Auto-type backend (auto, xdotool, wtype, ydotool)"`
-	EnableSubmenu   bool            `yaml:"enable_submenu" help:"Enable interactive sub-menu on password selection" default:"false"`
-	DefaultAction   string          `yaml:"default_action" help:"Default action when pressing Enter (copy-pass, autotype, copy-user, copy-otp, submenu)" default:"copy-pass"`
-	Hotkeys         HotkeyConfig    `yaml:"hotkeys" help:"Hotkey actions configuration"`
-	ConfigFile      string          `yaml:"-" help:"Path to YAML configuration file" type:"path" short:"C"`
-}
-
-// HotkeyConfig maps Rofi custom keybindings to actions.
-type HotkeyConfig struct {
-	CopyPass  string `yaml:"copy_pass" default:"Alt+c"`
-	CopyUser  string `yaml:"copy_user" default:"Alt+u"`
-	CopyOTP   string `yaml:"copy_otp" default:"Alt+o"`
-	AutoType  string `yaml:"autotype" default:"Alt+a"`
-	ViewNotes string `yaml:"view_notes" default:"Alt+n"`
-}
-
-// DefaultConfigPath returns the default path to the config file (~/.config/rofi-pass-go/config.yaml).
-func DefaultConfigPath() string {
-	configDir := os.Getenv("XDG_CONFIG_HOME")
-	if configDir == "" {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return filepath.Join(".config", "rofi-pass-go", "config.yaml")
-		}
-		configDir = filepath.Join(home, ".config")
-	}
-	return filepath.Join(configDir, "rofi-pass-go", "config.yaml")
+	StoreDir   string `yaml:"store_dir" help:"Path to password store directory" default:"~/.password-store" env:"PASSWORD_STORE_DIR"`
+	AutoType   bool   `yaml:"auto_type" help:"Auto-type password instead of copying to clipboard" short:"a"`
+	CopyPass   bool   `yaml:"copy_pass" help:"Copy password to clipboard" short:"c"`
+	CopyUser   bool   `yaml:"copy_user" help:"Copy username to clipboard" short:"u"`
+	CopyOTP    bool   `yaml:"copy_otp" help:"Copy TOTP 2FA code to clipboard" short:"o"`
+	ViewNotes  bool   `yaml:"view_notes" help:"View entry notes" short:"n"`
+	Delay      int    `yaml:"delay_ms" help:"Delay before auto-typing in milliseconds" default:"200"`
+	ClearAfter int    `yaml:"clear_after_sec" help:"Clipboard auto-clear delay in seconds" default:"45"`
+	Backend    string `yaml:"autotype_backend" enum:"auto,xdotool,wtype,ydotool" default:"auto" help:"Auto-type backend"`
+	ConfigFile string `yaml:"-" help:"Path to YAML configuration file" type:"path" short:"C"`
 }
 
 // ExpandPath replaces leading ~ with the user's home directory.
@@ -92,11 +67,8 @@ func WriteDefaultConfig(path string) (string, error) {
 # Path to the password store directory
 store_dir: "~/.password-store"
 
-# Default action when selecting an entry (copy-pass, autotype, copy-user, copy-otp, submenu)
-default_action: "copy-pass"
-
-# Enable interactive sub-menu when selecting an entry
-enable_submenu: false
+# Auto-type password instead of copying to clipboard on Enter
+auto_type: false
 
 # Delay before auto-typing characters in milliseconds
 delay_ms: 200
@@ -106,14 +78,6 @@ clear_after_sec: 45
 
 # Auto-type backend: auto (autodetect Wayland/X11), xdotool, wtype, or ydotool
 autotype_backend: "auto"
-
-# Custom hotkeys within Rofi
-hotkeys:
-  copy_pass: "Alt+c"
-  copy_user: "Alt+u"
-  copy_otp: "Alt+o"
-  autotype: "Alt+a"
-  view_notes: "Alt+n"
 `
 
 	if err := os.WriteFile(expanded, []byte(defaultContent), 0644); err != nil {

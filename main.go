@@ -15,18 +15,16 @@ import (
 )
 
 type CLI struct {
-	StoreDir      string `help:"Path to password store directory" default:"~/.password-store" env:"PASSWORD_STORE_DIR"`
-	ConfigFile    string `help:"Path to YAML configuration file" short:"C" type:"path" default:"~/.config/rofi-pass-go/config.yaml"`
-	AutoType      bool   `help:"Auto-type password instead of copying to clipboard" short:"a"`
-	CopyPass      bool   `help:"Copy password to clipboard" short:"c"`
-	CopyUser      bool   `help:"Copy username to clipboard" short:"u"`
-	CopyOTP       bool   `help:"Copy TOTP 2FA code to clipboard" short:"o"`
-	ViewNotes     bool   `help:"View entry notes" short:"n"`
-	Delay         int    `help:"Delay before auto-typing in milliseconds" default:"200"`
-	ClearAfter    int    `help:"Clipboard auto-clear delay in seconds" default:"45"`
-	Backend       string `enum:"auto,xdotool,wtype,ydotool" default:"auto" help:"Auto-type backend"`
-	EnableSubmenu bool   `help:"Enable interactive sub-menu"`
-	DefaultAction string `help:"Default action (copy-pass, autotype, copy-user, copy-otp, submenu)" default:"copy-pass"`
+	StoreDir   string `help:"Path to password store directory" default:"~/.password-store" env:"PASSWORD_STORE_DIR"`
+	ConfigFile string `help:"Path to YAML configuration file" short:"C" type:"path" default:"~/.config/rofi-pass-go/config.yaml"`
+	AutoType   bool   `help:"Auto-type password instead of copying to clipboard" short:"a"`
+	CopyPass   bool   `help:"Copy password to clipboard" short:"c"`
+	CopyUser   bool   `help:"Copy username to clipboard" short:"u"`
+	CopyOTP    bool   `help:"Copy TOTP 2FA code to clipboard" short:"o"`
+	ViewNotes  bool   `help:"View entry notes" short:"n"`
+	Delay      int    `help:"Delay before auto-typing in milliseconds" default:"200"`
+	ClearAfter int    `help:"Clipboard auto-clear delay in seconds" default:"45"`
+	Backend    string `enum:"auto,xdotool,wtype,ydotool" default:"auto" help:"Auto-type backend"`
 
 	// Subcommands
 	Rofi       RofiCmd       `cmd:"" default:"1" help:"Run in Rofi script mode (default)"`
@@ -76,13 +74,11 @@ func preprocessArgs(args []string) []string {
 	}
 
 	if !knownCommands[firstArg] {
-		// Store selection and strip it from args so Kong parses default RofiCmd cleanly
 		extraRofiSelection = firstArg
 		if os.Getenv("ROFI_INFO") == "" {
 			os.Setenv("ROFI_INFO", firstArg)
 		}
-		newArgs := append([]string{args[0]}, args[2:]...)
-		return newArgs
+		return append([]string{args[0]}, args[2:]...)
 	}
 
 	return args
@@ -108,7 +104,6 @@ func main() {
 		parser.FatalIfErrorf(err)
 	}
 
-	// Build app Config by loading YAML file if present and merging CLI values
 	appConfig := buildAppConfig(&cli)
 
 	err = ctx.Run(appConfig)
@@ -120,21 +115,18 @@ func main() {
 
 func buildAppConfig(cli *CLI) *config.Config {
 	cfg := &config.Config{
-		StoreDir:      cli.StoreDir,
-		AutoType:      cli.AutoType,
-		CopyPass:      cli.CopyPass,
-		CopyUser:      cli.CopyUser,
-		CopyOTP:       cli.CopyOTP,
-		ViewNotes:     cli.ViewNotes,
-		Delay:         cli.Delay,
-		ClearAfter:    cli.ClearAfter,
-		Backend:       cli.Backend,
-		EnableSubmenu: cli.EnableSubmenu,
-		DefaultAction: cli.DefaultAction,
-		ConfigFile:    cli.ConfigFile,
+		StoreDir:   cli.StoreDir,
+		AutoType:   cli.AutoType,
+		CopyPass:   cli.CopyPass,
+		CopyUser:   cli.CopyUser,
+		CopyOTP:    cli.CopyOTP,
+		ViewNotes:  cli.ViewNotes,
+		Delay:      cli.Delay,
+		ClearAfter: cli.ClearAfter,
+		Backend:    cli.Backend,
+		ConfigFile: cli.ConfigFile,
 	}
 
-	// Read YAML config file if it exists
 	yamlCfg, err := config.LoadYAML(cli.ConfigFile)
 	if err == nil && yamlCfg != nil {
 		if yamlCfg.StoreDir != "" && cli.StoreDir == "~/.password-store" {
@@ -149,13 +141,9 @@ func buildAppConfig(cli *CLI) *config.Config {
 		if yamlCfg.Backend != "" && cli.Backend == "auto" {
 			cfg.Backend = yamlCfg.Backend
 		}
-		if yamlCfg.DefaultAction != "" && cli.DefaultAction == "copy-pass" {
-			cfg.DefaultAction = yamlCfg.DefaultAction
+		if yamlCfg.AutoType {
+			cfg.AutoType = true
 		}
-		if yamlCfg.EnableSubmenu {
-			cfg.EnableSubmenu = true
-		}
-		cfg.Hotkeys = yamlCfg.Hotkeys
 	}
 
 	return cfg

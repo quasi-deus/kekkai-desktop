@@ -3,6 +3,7 @@ package rofi
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -88,7 +89,9 @@ func HandleScriptMode(cfg *config.Config, selectedArg string) error {
 			return nil
 		}
 
-		return ExecuteAction(action, selectedEntry, cfg, store)
+		// Launch action in a detached background process so Rofi exits immediately
+		// and releases the Wayland keyboard focus grab for GPG pinentry.
+		return ExecuteActionDetached(action, selectedEntry, cfg)
 
 	default:
 		return nil
@@ -131,10 +134,40 @@ func handleSubmenuSelection(selectedInfo string, cfg *config.Config, store *pass
 	entryName := parts[1]
 	action := Action(parts[2])
 
-	return ExecuteAction(action, entryName, cfg, store)
+	return ExecuteActionDetached(action, entryName, cfg)
 }
 
-// ExecuteAction decrypts the entry and performs the target action.
+// ExecuteActionDetached launches the target action in a background process so Rofi releases Wayland focus.
+func ExecuteActionDetached(action Action, entryName string, cfg *config.Config) error {
+	selfBinary, err := os.Executable()
+	if err != nil {
+		selfBinary = "rofi-pass-go"
+	}
+
+	var args []string
+	switch action {
+	case ActionCopyPass:
+		args = []string{"copy", entryName, "--field", "pass"}
+	case ActionCopyUser:
+		args = []string{"copy", entryName, "--field", "user"}
+	case ActionCopyOTP:
+		args = []string{"copy", entryName, "--field", "otp"}
+	case ActionAutoType:
+		args = []string{"type", entryName}
+	case ActionViewNotes:
+		args = []string{"show", entryName}
+	default:
+		args = []string{"copy", entryName, "--field", "pass"}
+	}
+
+	logDebug("Launching detached action: %s %v", selfBinary, args)
+
+	cmd := exec.Command(selfBinary, args...)
+	cmd.Env = os.Environ()
+	return cmd.Start()
+}
+
+// ExecuteAction decrypts the entry and performs the target action directly.
 func ExecuteAction(action Action, entryName string, cfg *config.Config, store *pass.Store) error {
 	entry, err := store.GetEntry(entryName)
 	if err != nil {

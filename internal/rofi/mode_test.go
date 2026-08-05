@@ -13,7 +13,6 @@ import (
 func TestHandleScriptModeInitialLoad(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	// Create mock password store
 	entryPath := filepath.Join(tmpDir, "github.com/alice.gpg")
 	os.MkdirAll(filepath.Dir(entryPath), 0755)
 	os.WriteFile(entryPath, []byte("mock"), 0644)
@@ -23,7 +22,6 @@ func TestHandleScriptModeInitialLoad(t *testing.T) {
 		ClearAfter: 0,
 	}
 
-	// Set ROFI_RETV=0 for initial load
 	os.Setenv("ROFI_RETV", "0")
 	defer os.Unsetenv("ROFI_RETV")
 
@@ -33,7 +31,7 @@ func TestHandleScriptModeInitialLoad(t *testing.T) {
 	}
 }
 
-func TestExecuteActionViewNotes(t *testing.T) {
+func TestCopyPasswordNonExistent(t *testing.T) {
 	tmpDir := t.TempDir()
 	store := pass.NewStore(tmpDir)
 
@@ -42,7 +40,7 @@ func TestExecuteActionViewNotes(t *testing.T) {
 		ClearAfter: 0,
 	}
 
-	err := rofi.ExecuteAction(rofi.ActionViewNotes, "nonexistent", cfg, store)
+	err := rofi.CopyPassword("nonexistent", cfg, store)
 	if err == nil {
 		t.Error("expected error for nonexistent entry")
 	}

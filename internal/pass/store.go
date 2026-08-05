@@ -50,14 +50,12 @@ func (s *Store) ListEntries() ([]string, error) {
 		for _, item := range items {
 			name := item.Name()
 
-			// Skip hidden files or directories (.git, .gpg-id, .extensions)
 			if strings.HasPrefix(name, ".") {
 				continue
 			}
 
 			itemPath := filepath.Join(currentDir, name)
 
-			// Resolve symlinks
 			info, err := os.Stat(itemPath)
 			if err != nil {
 				continue
@@ -87,8 +85,8 @@ func (s *Store) ListEntries() ([]string, error) {
 	return entries, nil
 }
 
-// GetEntry decrypts and parses a specific pass entry.
-func (s *Store) GetEntry(name string) (*Entry, error) {
+// GetPassword decrypts a GPG pass file and returns the password (first line).
+func (s *Store) GetPassword(name string) (string, error) {
 	realDir, err := filepath.EvalSymlinks(s.Dir)
 	if err != nil {
 		realDir = s.Dir
@@ -98,18 +96,17 @@ func (s *Store) GetEntry(name string) (*Entry, error) {
 	filePath := filepath.Join(realDir, cleanName+".gpg")
 
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		return nil, fmt.Errorf("entry does not exist: %s", cleanName)
+		return "", fmt.Errorf("entry does not exist: %s", cleanName)
 	}
 
-	// Decrypt GPG file using gpg CLI
 	cmd := exec.Command("gpg", "--decrypt", "--batch", "--quiet", filePath)
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("failed to decrypt %s: %s (%w)", cleanName, stderr.String(), err)
+		return "", fmt.Errorf("failed to decrypt %s: %s (%w)", cleanName, stderr.String(), err)
 	}
 
-	return ParseEntryContent(cleanName, stdout.String()), nil
+	return ParsePassword(stdout.String()), nil
 }

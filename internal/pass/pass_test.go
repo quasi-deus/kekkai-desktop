@@ -8,38 +8,21 @@ import (
 	"github.com/quasi-deus/rofi-pass-go/internal/pass"
 )
 
-func TestParseEntryContent(t *testing.T) {
+func TestParsePassword(t *testing.T) {
 	content := `s3cr3tP@ssw0rd!
 username: admin_john
 url: https://github.com
-otpauth://totp/GitHub:admin_john?secret=JBSWY3DPEHPK3PXP&issuer=GitHub
-notes: Some extra notes line 1
-Some extra notes line 2
 `
 
-	entry := pass.ParseEntryContent("github.com/admin_john", content)
-
-	if entry.Password != "s3cr3tP@ssw0rd!" {
-		t.Errorf("expected password 's3cr3tP@ssw0rd!', got '%s'", entry.Password)
-	}
-	if entry.Username != "admin_john" {
-		t.Errorf("expected username 'admin_john', got '%s'", entry.Username)
-	}
-	if entry.URL != "https://github.com" {
-		t.Errorf("expected url 'https://github.com', got '%s'", entry.URL)
-	}
-	if entry.ExtractOTPSecretKey() != "JBSWY3DPEHPK3PXP" {
-		t.Errorf("expected OTP secret 'JBSWY3DPEHPK3PXP', got '%s'", entry.ExtractOTPSecretKey())
-	}
-	if entry.Notes == "" {
-		t.Error("expected non-empty notes")
+	pwd := pass.ParsePassword(content)
+	if pwd != "s3cr3tP@ssw0rd!" {
+		t.Errorf("expected password 's3cr3tP@ssw0rd!', got '%s'", pwd)
 	}
 }
 
 func TestStoreListEntries(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	// Create mock password store files
 	files := []string{
 		"email/personal.gpg",
 		"email/work.gpg",

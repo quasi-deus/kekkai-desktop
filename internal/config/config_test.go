@@ -31,20 +31,16 @@ func TestExpandPath(t *testing.T) {
 	}
 }
 
-func TestWriteAndLoadConfig(t *testing.T) {
+func TestLoadConfig(t *testing.T) {
 	tmpDir := t.TempDir()
-	configPath := filepath.Join(tmpDir, "sub", "config.yaml")
+	configPath := filepath.Join(tmpDir, "config.yaml")
 
-	// Test writing default config
-	createdPath, err := config.WriteDefaultConfig(configPath)
-	if err != nil {
-		t.Fatalf("WriteDefaultConfig failed: %v", err)
-	}
-	if createdPath != configPath {
-		t.Errorf("expected path %s, got %s", configPath, createdPath)
-	}
+	content := `
+store_dir: "~/.password-store"
+clear_after_sec: 45
+`
+	os.WriteFile(configPath, []byte(content), 0644)
 
-	// Test loading written YAML config
 	cfg, err := config.LoadYAML(configPath)
 	if err != nil {
 		t.Fatalf("LoadYAML failed: %v", err)
@@ -53,13 +49,7 @@ func TestWriteAndLoadConfig(t *testing.T) {
 	if cfg.StoreDir != "~/.password-store" {
 		t.Errorf("expected store_dir ~/.password-store, got %s", cfg.StoreDir)
 	}
-	if cfg.Delay != 200 {
-		t.Errorf("expected delay_ms 200, got %d", cfg.Delay)
-	}
 	if cfg.ClearAfter != 45 {
 		t.Errorf("expected clear_after_sec 45, got %d", cfg.ClearAfter)
-	}
-	if cfg.Backend != "auto" {
-		t.Errorf("expected backend auto, got %s", cfg.Backend)
 	}
 }

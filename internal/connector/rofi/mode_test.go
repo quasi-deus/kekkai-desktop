@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/quasi-deus/kekkai/desktop/internal/config"
-	"github.com/quasi-deus/kekkai/desktop/internal/repository/pass"
-	"github.com/quasi-deus/kekkai/desktop/internal/connector/rofi"
+	"github.com/quasi-deus/kekkai-desktop/internal/config"
+	"github.com/quasi-deus/kekkai-desktop/internal/repository/pass"
+	"github.com/quasi-deus/kekkai-desktop/internal/connector/rofi"
 )
 
 func TestHandleScriptModeInitialLoad(t *testing.T) {

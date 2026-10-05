@@ -5,9 +5,9 @@ import (
 	"os"
 
 	"github.com/alecthomas/kong"
-	"github.com/quasi-deus/kekkai/desktop/internal/config"
-	"github.com/quasi-deus/kekkai/desktop/internal/repository/pass"
-	"github.com/quasi-deus/kekkai/desktop/internal/connector/rofi"
+	"github.com/quasi-deus/kekkai-desktop/internal/config"
+	"github.com/quasi-deus/kekkai-desktop/internal/repository/pass"
+	"github.com/quasi-deus/kekkai-desktop/internal/connector/rofi"
 )
 
 type CLI struct {

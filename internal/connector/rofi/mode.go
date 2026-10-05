@@ -5,10 +5,10 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/quasi-deus/kekkai/desktop/internal/clipboard"
-	"github.com/quasi-deus/kekkai/desktop/internal/config"
-	"github.com/quasi-deus/kekkai/desktop/internal/repository"
-	"github.com/quasi-deus/kekkai/desktop/internal/repository/pass"
+	"github.com/quasi-deus/kekkai-desktop/internal/clipboard"
+	"github.com/quasi-deus/kekkai-desktop/internal/config"
+	"github.com/quasi-deus/kekkai-desktop/internal/repository"
+	"github.com/quasi-deus/kekkai-desktop/internal/repository/pass"
 )
 
 // HandleScriptMode orchestrates Rofi script mode protocol.

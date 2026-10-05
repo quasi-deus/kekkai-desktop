@@ -14,7 +14,7 @@ shared code or a shared repo.
 ## Installation
 
 ```bash
-go install github.com/quasi-deus/kekkai/desktop/cmd/kekkai-rofi@latest
+go install github.com/quasi-deus/kekkai-desktop/cmd/kekkai-rofi@latest
 ```
 
 ## Rofi Usage
@@ -31,3 +31,7 @@ Default configuration (`~/.config/kekkai/config.yaml`):
 store_dir: "~/.password-store"
 clear_after_sec: 45
 ```
+
+## License
+
+GPLv3 — see [LICENSE](LICENSE).

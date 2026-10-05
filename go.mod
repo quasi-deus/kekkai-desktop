@@ -1,4 +1,4 @@
-module github.com/quasi-deus/kekkai/desktop
+module github.com/quasi-deus/kekkai-desktop
 
 go 1.26
 

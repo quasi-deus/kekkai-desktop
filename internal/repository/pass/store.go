@@ -9,8 +9,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/quasi-deus/kekkai/desktop/internal/config"
-	"github.com/quasi-deus/kekkai/desktop/internal/repository"
+	"github.com/quasi-deus/kekkai-desktop/internal/config"
+	"github.com/quasi-deus/kekkai-desktop/internal/repository"
 )
 
 // Store interacts with the local password-store directory (~/.password-store).

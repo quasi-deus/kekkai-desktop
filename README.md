@@ -1,9 +1,9 @@
 # kekkai desktop
 
-Go-native connectors for `pass` (and, over time, other secret-store backends),
-built as a monorepo of small per-connector binaries sharing common store/config/
-clipboard logic. This directory holds the Linux side; see `../android` for the
-planned Android frontend.
+Go-native connectors for `pass` (and, over time, other secret-store backends)
+on Linux. Sibling project **kekkai-android** is the Android frontend —
+they're coupled only by the shared `pass`-compatible store format, not by
+shared code or a shared repo.
 
 ## Connectors
 

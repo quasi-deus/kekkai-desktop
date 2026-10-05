@@ -1,4 +1,4 @@
-module github.com/quasi-deus/rofi-pass-go
+module github.com/quasi-deus/kekkai/desktop
 
 go 1.26
 

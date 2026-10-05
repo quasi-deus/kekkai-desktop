@@ -5,9 +5,10 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/quasi-deus/rofi-pass-go/internal/clipboard"
-	"github.com/quasi-deus/rofi-pass-go/internal/config"
-	"github.com/quasi-deus/rofi-pass-go/internal/pass"
+	"github.com/quasi-deus/kekkai/desktop/internal/clipboard"
+	"github.com/quasi-deus/kekkai/desktop/internal/config"
+	"github.com/quasi-deus/kekkai/desktop/internal/repository"
+	"github.com/quasi-deus/kekkai/desktop/internal/repository/pass"
 )
 
 // HandleScriptMode orchestrates Rofi script mode protocol.
@@ -54,7 +55,7 @@ func HandleScriptMode(cfg *config.Config, selectedArg string) error {
 func CopyPasswordDetached(entryName string) error {
 	selfBinary, err := os.Executable()
 	if err != nil {
-		selfBinary = "rofi-pass-go"
+		selfBinary = "kekkai-rofi"
 	}
 
 	cmd := exec.Command(selfBinary, "--copy-action", entryName)
@@ -63,7 +64,7 @@ func CopyPasswordDetached(entryName string) error {
 }
 
 // CopyPassword decrypts the entry and copies password to clipboard.
-func CopyPassword(entryName string, cfg *config.Config, store *pass.Store) error {
+func CopyPassword(entryName string, cfg *config.Config, store repository.Repository) error {
 	pwd, err := store.GetPassword(entryName)
 	if err != nil {
 		fmt.Printf("Failed to decrypt entry %s: %v\n", entryName, err)

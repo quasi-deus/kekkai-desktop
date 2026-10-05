@@ -5,14 +5,14 @@ import (
 	"os"
 
 	"github.com/alecthomas/kong"
-	"github.com/quasi-deus/rofi-pass-go/internal/config"
-	"github.com/quasi-deus/rofi-pass-go/internal/pass"
-	"github.com/quasi-deus/rofi-pass-go/internal/rofi"
+	"github.com/quasi-deus/kekkai/desktop/internal/config"
+	"github.com/quasi-deus/kekkai/desktop/internal/repository/pass"
+	"github.com/quasi-deus/kekkai/desktop/internal/connector/rofi"
 )
 
 type CLI struct {
 	StoreDir   string `help:"Path to password store directory" default:"~/.password-store" env:"PASSWORD_STORE_DIR"`
-	ConfigFile string `help:"Path to YAML configuration file" short:"C" type:"path" default:"~/.config/rofi-pass-go/config.yaml"`
+	ConfigFile string `help:"Path to YAML configuration file" short:"C" type:"path" default:"~/.config/kekkai/config.yaml"`
 	ClearAfter int    `help:"Clipboard auto-clear delay in seconds" default:"45"`
 	CopyAction string `help:"Internal flag to copy password for entry" hidden:""`
 
@@ -23,8 +23,8 @@ func main() {
 	var cli CLI
 
 	kong.Parse(&cli,
-		kong.Name("rofi-pass-go"),
-		kong.Description("Fast, Go-native Rofi interface for pass."),
+		kong.Name("kekkai-rofi"),
+		kong.Description("Rofi connector for kekkai, a Go-native multi-frontend pass client."),
 		kong.UsageOnError(),
 	)
 

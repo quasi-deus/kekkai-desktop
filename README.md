@@ -1,28 +1,31 @@
-# rofi-pass-go
+# kekkai desktop
 
-Minimal Go replacement for `rofi-pass`.
+Go-native connectors for `pass` (and, over time, other secret-store backends),
+built as a monorepo of small per-connector binaries sharing common store/config/
+clipboard logic. This directory holds the Linux side; see `../android` for the
+planned Android frontend.
 
-## Features
+## Connectors
 
-- Sub-millisecond execution
-- Simple YAML configuration (`~/.config/rofi-pass-go/config.yaml`)
-- Automatic Wayland/X11 clipboard management (`wl-copy` / `xclip`) with auto-clear timer
+- **kekkai-rofi** (`cmd/kekkai-rofi`) — Rofi script-mode connector. Sub-millisecond
+  entry listing, automatic Wayland/X11 clipboard management (`wl-copy` / `xclip`)
+  with an auto-clear timer.
 
 ## Installation
 
 ```bash
-go install github.com/quasi-deus/rofi-pass-go@latest
+go install github.com/quasi-deus/kekkai/desktop/cmd/kekkai-rofi@latest
 ```
 
 ## Rofi Usage
 
 ```bash
-rofi -show pass -modi "pass:rofi-pass-go"
+rofi -show pass -modi "pass:kekkai-rofi"
 ```
 
 ## Configuration
 
-Default configuration (`~/.config/rofi-pass-go/config.yaml`):
+Default configuration (`~/.config/kekkai/config.yaml`):
 
 ```yaml
 store_dir: "~/.password-store"

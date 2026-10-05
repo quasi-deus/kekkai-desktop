@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/quasi-deus/rofi-pass-go/internal/pass"
+	"github.com/quasi-deus/kekkai/desktop/internal/repository/pass"
 )
 
 func TestParsePassword(t *testing.T) {

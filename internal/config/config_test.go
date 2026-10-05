@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/quasi-deus/rofi-pass-go/internal/config"
+	"github.com/quasi-deus/kekkai/desktop/internal/config"
 )
 
 func TestExpandPath(t *testing.T) {

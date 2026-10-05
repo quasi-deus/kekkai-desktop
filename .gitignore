@@ -1,6 +1,6 @@
 # Binaries
 bin/
-rofi-pass-go
+kekkai-rofi
 
 # Test artifacts
 *.out
@@ -16,3 +16,4 @@ coverage.html
 scratch/
 config.yaml
 *Taskfile*
+AGENTS.local.md

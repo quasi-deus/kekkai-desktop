@@ -9,13 +9,17 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/quasi-deus/rofi-pass-go/internal/config"
+	"github.com/quasi-deus/kekkai/desktop/internal/config"
+	"github.com/quasi-deus/kekkai/desktop/internal/repository"
 )
 
 // Store interacts with the local password-store directory (~/.password-store).
+// It implements repository.Repository.
 type Store struct {
 	Dir string
 }
+
+var _ repository.Repository = (*Store)(nil)
 
 // NewStore creates a new Store instance given a store directory path.
 func NewStore(dir string) *Store {
